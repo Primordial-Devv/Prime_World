@@ -215,31 +215,6 @@ end)
 
 AddEventHandler('esx:restoreLoadout', function()
 	ESX.SetPlayerData('ped', PlayerPedId())
-
-	if not Config.QSInventory then
-		local ammoTypes = {}
-		RemoveAllPedWeapons(ESX.PlayerData.ped, true)
-
-		for _, v in ipairs(ESX.PlayerData.loadout) do
-			local weaponName = v.name
-			local weaponHash = joaat(weaponName)
-
-			GiveWeaponToPed(ESX.PlayerData.ped, weaponHash, 0, false, false)
-			SetPedWeaponTintIndex(ESX.PlayerData.ped, weaponHash, v.tintIndex)
-
-			local ammoType = GetPedAmmoTypeFromWeapon(ESX.PlayerData.ped, weaponHash)
-
-			for _, v2 in ipairs(v.components) do
-				local componentHash = ESX.GetWeaponComponent(weaponName, v2).hash
-				GiveWeaponComponentToPed(ESX.PlayerData.ped, weaponHash, componentHash)
-			end
-
-			if not ammoTypes[ammoType] then
-				AddAmmoToPed(ESX.PlayerData.ped, weaponHash, v.ammo)
-				ammoTypes[ammoType] = true
-			end
-		end
-	end
 end)
 
 -- Credit: https://github.com/LukeWasTakenn, https://github.com/LukeWasTakenn/luke_garages/blob/master/client/client.lua#L331-L352
@@ -286,49 +261,6 @@ AddEventHandler('esx:setJob', function(Job)
 	ESX.SetPlayerData('job', Job)
 end)
 
-if not Config.QSInventory then
-	RegisterNetEvent('esx:createPickup')
-	AddEventHandler('esx:createPickup', function(pickupId, label, coords, itemType, name, components, tintIndex)
-		local function setObjectProperties(object)
-			SetEntityAsMissionEntity(object, true, false)
-			PlaceObjectOnGroundProperly(object)
-			FreezeEntityPosition(object, true)
-			SetEntityCollision(object, false, true)
-
-			pickups[pickupId] = {
-				obj = object,
-				label = label,
-				inRange = false,
-				coords = coords
-			}
-		end
-
-		if itemType == 'item_weapon' then
-			local weaponHash = joaat(name)
-			ESX.Streaming.RequestWeaponAsset(weaponHash)
-			local pickupObject = CreateWeaponObject(weaponHash, 50, coords.x, coords.y, coords.z, true, 1.0, 0)
-			SetWeaponObjectTintIndex(pickupObject, tintIndex)
-
-			for _, v in ipairs(components) do
-				local component = ESX.GetWeaponComponent(name, v)
-				GiveWeaponComponentToWeaponObject(pickupObject, component.hash)
-			end
-
-			setObjectProperties(pickupObject)
-		else
-			ESX.Game.SpawnLocalObject('prop_money_bag_01', coords, setObjectProperties)
-		end
-	end)
-
-	RegisterNetEvent('esx:createMissingPickups')
-	AddEventHandler('esx:createMissingPickups', function(missingPickups)
-		for pickupId, pickup in pairs(missingPickups) do
-			TriggerEvent('esx:createPickup', pickupId, pickup.label, vector3(pickup.coords.x, pickup.coords.y, pickup.coords.z - 1.0), pickup.type, pickup.name
-			, pickup.components, pickup.tintIndex)
-		end
-	end)
-end
-
 RegisterNetEvent('esx:registerSuggestions')
 AddEventHandler('esx:registerSuggestions', function(registeredCommands)
 	for name, command in pairs(registeredCommands) do
@@ -338,45 +270,8 @@ AddEventHandler('esx:registerSuggestions', function(registeredCommands)
 	end
 end)
 
-if not Config.QSInventory then
-	RegisterNetEvent('esx:removePickup')
-	AddEventHandler('esx:removePickup', function(pickupId)
-		if pickups[pickupId] and pickups[pickupId].obj then
-			ESX.Game.DeleteObject(pickups[pickupId].obj)
-			pickups[pickupId] = nil
-		end
-	end)
-end
-
 function StartServerSyncLoops()
-	if not Config.QSInventory then
-		-- keep track of ammo
-
-		CreateThread(function()
-			local currentWeapon = { Ammo = 0 }
-			while ESX.PlayerLoaded do
-				local sleep = 1500
-				if GetSelectedPedWeapon(ESX.PlayerData.ped) ~= -1569615261 then
-					sleep = 1000
-					local _, weaponHash = GetCurrentPedWeapon(ESX.PlayerData.ped, true)
-					local weapon = ESX.GetWeaponFromHash(weaponHash)
-					if weapon then
-						local ammoCount = GetAmmoInPedWeapon(ESX.PlayerData.ped, weaponHash)
-						if weapon.name ~= currentWeapon.name then
-							currentWeapon.Ammo = ammoCount
-							currentWeapon.name = weapon.name
-						else
-							if ammoCount ~= currentWeapon.Ammo then
-								currentWeapon.Ammo = ammoCount
-								TriggerServerEvent('esx:updateWeaponAmmo', weapon.name, ammoCount)
-							end
-						end
-					end
-				end
-				Wait(sleep)
-			end
-		end)
-	end
+	return
 end
 
 -- Do not remove this, it's used for disabling the default GTA wanted level.
@@ -384,53 +279,6 @@ end
 ClearPlayerWantedLevel(PlayerId())
 SetMaxWantedLevel(0)
 ----------
-
-if not Config.QSInventory then
-	CreateThread(function()
-		while true do
-			local Sleep = 1500
-			local playerCoords = GetEntityCoords(ESX.PlayerData.ped)
-			local _, closestDistance = ESX.Game.GetClosestPlayer(playerCoords)
-
-			for pickupId, pickup in pairs(pickups) do
-				local distance = #(playerCoords - pickup.coords)
-
-				if distance < 5 then
-					Sleep = 0
-					local label = pickup.label
-
-					if distance < 1 then
-						if IsControlJustReleased(0, 38) then
-							if IsPedOnFoot(ESX.PlayerData.ped) and (closestDistance == -1 or closestDistance > 3) and not pickup.inRange then
-								pickup.inRange = true
-
-								local dict, anim = 'weapons@first_person@aim_rng@generic@projectile@sticky_bomb@', 'plant_floor'
-								ESX.Streaming.RequestAnimDict(dict)
-								TaskPlayAnim(ESX.PlayerData.ped, dict, anim, 8.0, 1.0, 1000, 16, 0.0, false, false, false)
-								RemoveAnimDict(dict)
-								Wait(1000)
-
-								TriggerServerEvent('esx:onPickup', pickupId)
-								PlaySoundFrontend(-1, 'PICK_UP', 'HUD_FRONTEND_DEFAULT_SOUNDSET', false)
-							end
-						end
-
-						label = ('%s~n~%s'):format(label, TranslateCap('threw_pickup_prompt'))
-					end
-
-					ESX.Game.Utils.DrawText3D({
-						x = pickup.coords.x,
-						y = pickup.coords.y,
-						z = pickup.coords.z + 0.25
-					}, label, 1.2, 1)
-				elseif pickup.inRange then
-					pickup.inRange = false
-				end
-			end
-			Wait(Sleep)
-		end
-	end)
-end
 
 ----- Admin commands from esx_adminplus
 
