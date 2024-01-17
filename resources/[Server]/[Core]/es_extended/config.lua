@@ -18,8 +18,6 @@ Config.Accounts             = {
 
 Config.StartingAccountMoney = { bank = 50000 }
 
-Config.StartingInventoryItems = false -- table/false
-
 Config.DefaultSpawns = { -- If you want to have more spawn positions and select them randomly uncomment commented code or add more locations
 	{ x = 222.2027, y = -864.0162, z = 30.2922, heading = 1.0 },
 	--{x = 224.9865, y = -865.0871, z = 30.2922, heading = 1.0},
@@ -40,7 +38,6 @@ Config.EnableSocietyPayouts      = false     -- pay from the society account tha
 Config.MaxWeight                 = 24        -- the max inventory weight without backpack
 Config.PaycheckInterval          = 7 * 60000 -- how often to recieve pay checks in milliseconds
 Config.EnableDebug               = false     -- Use Debug options?
-Config.EnableDefaultInventory    = false      -- Display the default Inventory ( F2 )
 Config.EnableWantedLevel         = false     -- Use Normal GTA wanted Level?
 Config.EnablePVP                 = true      -- Allow Player to player combat
 

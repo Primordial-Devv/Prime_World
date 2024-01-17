@@ -448,16 +448,6 @@ function StartServerSyncLoops()
 	end
 end
 
-if Config.EnableDefaultInventory then
-	RegisterCommand('showinv', function()
-		if not ESX.PlayerData.dead then
-			ESX.ShowInventory()
-		end
-	end)
-
-	RegisterKeyMapping('showinv', TranslateCap('keymap_showinventory'), 'keyboard', 'F2')
-end
-
 -- disable wanted level
 if not Config.EnableWantedLevel then
 	ClearPlayerWantedLevel(PlayerId())

@@ -5,10 +5,6 @@ local oneSyncState = GetConvar('onesync', 'off')
 local newPlayer = 'INSERT INTO `users` SET `accounts` = ?, `identifier` = ?, `group` = ?'
 local loadPlayer = 'SELECT `accounts`, `job`, `job_grade`, `group`, `position`, `inventory`, `skin`, `loadout`, `metadata`'
 
-if Config.StartingInventoryItems then
-	newPlayer = newPlayer .. ', `inventory` = ?'
-end
-
 -- Do not remove this, it is used for Selecting a characters identity data before they have loaded in
 ----------
 loadPlayer = loadPlayer .. ', `firstname`, `lastname`, `dateofbirth`, `sex`, `height`'
@@ -62,10 +58,6 @@ function createESXPlayer(identifier, playerId, data)
 	end
 
 	local parameters = Config.Multichar and { json.encode(accounts), identifier, defaultGroup, data.firstname, data.lastname, data.dateofbirth, data.sex, data.height } or { json.encode(accounts), identifier, defaultGroup }
-
-	if Config.StartingInventoryItems then
-		table.insert(parameters, json.encode(Config.StartingInventoryItems))
-	end
 
 	MySQL.prepare(newPlayer, parameters, function()
 		loadESXPlayer(identifier, playerId, true)
