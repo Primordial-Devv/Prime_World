@@ -675,3 +675,8 @@
 [      script:hardcap] Connecting: Primordial_Studio
 [ citizen-server-impl] Server list query returned an error: System.Threading.Tasks.TaskCanceledException: A task was canceled. <- System.TimeoutException: A task was canceled. <- System.Threading.Tasks.TaskCanceledException: The request was canceled due to the configured HttpClient.Timeout of 30 seconds elapsing.
 [  script:es_extended] [INFO] Player [36m"Prime Dev" has connected to the server. ID: 2
+[ citizen-server-impl] Server list query returned an error: System.Threading.Tasks.TaskCanceledException: A task was canceled. <- System.TimeoutException: A task was canceled. <- System.Threading.Tasks.TaskCanceledException: The request was canceled due to the configured HttpClient.Timeout of 30 seconds elapsing.
+[  script:es_extended] [INFO] Saved 1 player over 0.0 ms
+[ citizen-server-impl] Server list query returned an error: System.Threading.Tasks.TaskCanceledException: A task was canceled. <- System.TimeoutException: A task was canceled. <- System.Threading.Tasks.TaskCanceledException: The request was canceled due to the configured HttpClient.Timeout of 30 seconds elapsing.
+[ citizen-server-main] -> Quitting: SIGHUP received
+[  script:es_extended] [INFO] Saved player "Prime Dev"
