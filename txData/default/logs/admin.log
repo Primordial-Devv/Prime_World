@@ -1,0 +1,20 @@
+
+================================================================
+======== txAdmin v6.0.2 atop fxserver 7310 Starting - 17/01/2024, 12:34:03
+================================================================
+[12:34:17][Primordial_Dev] created admins file
+[12:34:39][Primordial_Dev] Changing global/fxserver settings via setup stepper.
+[12:36:07][Primordial_Dev] Changing fxRunner settings.
+[12:37:13][Primordial_Dev] Changing Player Manager settings.
+[12:37:22][Primordial_Dev] Changing fxRunner settings.
+[12:37:37][Primordial_Dev] executed "RESTART SERVER"
+[12:40:31][Primordial_Dev] Approved whitelist request from Wolfy Dev.
+
+================================================================
+======== txAdmin v6.0.2 atop fxserver 7310 Starting - 17/01/2024, 12:42:29
+================================================================
+[12:42:34][Primordial_Dev] logged in from 127.0.0.1 via citizenfx
+
+================================================================
+======== txAdmin v6.0.2 atop fxserver 7310 Starting - 17/01/2024, 13:14:24
+================================================================

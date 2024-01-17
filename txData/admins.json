@@ -1,0 +1,21 @@
+[
+  {
+    "name": "Primordial_Dev",
+    "master": true,
+    "password_hash": "$2a$11$PeqdRXxd8EqID6uwhFbNR.QNaeHAKM7MXo79eV2xXQ0K0vAhtgDUe",
+    "providers": {
+      "citizenfx": {
+        "id": "Primordial_Dev",
+        "identifier": "fivem:12926535",
+        "data": {
+          "sub": "30118869a42e878c869f35120f8f1de9",
+          "nameid": "https://forum.cfx.re/internal/user/12926535",
+          "name": "Primordial_Dev",
+          "picture": "https://forum.cfx.re/user_avatar/forum.cfx.re/primordial_dev/256/4074515_2.png",
+          "profile": "https://forum.cfx.re/u/Primordial_Dev"
+        }
+      }
+    },
+    "permissions": []
+  }
+]
