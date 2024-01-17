@@ -21,7 +21,7 @@ function CreateExtendedPlayer(playerId, identifier, group, accounts, inventory, 
 	self.maxWeight = Config.MaxWeight
 	self.metadata = metadata
     self.admin = Core.IsPlayerAdmin(playerId)
-	if Config.Multichar then self.license = 'license' .. identifier:sub(identifier:find(':'), identifier:len()) else self.license = 'license:' .. identifier end
+	self.license = 'license:' .. identifier
 
 	ExecuteCommand(('add_principal identifier.%s group.%s'):format(self.license, self.group))
 

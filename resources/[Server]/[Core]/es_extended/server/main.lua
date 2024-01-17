@@ -5,48 +5,27 @@ local oneSyncState = GetConvar('onesync', 'off')
 local newPlayer = 'INSERT INTO `users` SET `accounts` = ?, `identifier` = ?, `group` = ?'
 local loadPlayer = 'SELECT `accounts`, `job`, `job_grade`, `group`, `position`, `inventory`, `skin`, `loadout`, `metadata`'
 
-if Config.Multichar then
-	newPlayer = newPlayer .. ', `firstname` = ?, `lastname` = ?, `dateofbirth` = ?, `sex` = ?, `height` = ?'
-end
-
 if Config.StartingInventoryItems then
 	newPlayer = newPlayer .. ', `inventory` = ?'
 end
 
-if Config.Multichar or Config.Identity then
-	loadPlayer = loadPlayer .. ', `firstname`, `lastname`, `dateofbirth`, `sex`, `height`'
-end
-
+-- Do not remove this, it is used for Selecting a characters identity data before they have loaded in
+----------
+loadPlayer = loadPlayer .. ', `firstname`, `lastname`, `dateofbirth`, `sex`, `height`'
+----------
 loadPlayer = loadPlayer .. ' FROM `users` WHERE identifier = ?'
 
-if Config.Multichar then
-	AddEventHandler('esx:onPlayerJoined', function(src, char, data)
-		while not next(ESX.Jobs) do
-			Wait(50)
-		end
+RegisterNetEvent('esx:onPlayerJoined')
+AddEventHandler('esx:onPlayerJoined', function()
+	local _source = source
+	while not next(ESX.Jobs) do
+		Wait(50)
+	end
 
-		if not ESX.Players[src] then
-			local identifier = char .. ':' .. ESX.GetIdentifier(src)
-			if data then
-				createESXPlayer(identifier, src, data)
-			else
-				loadESXPlayer(identifier, src, false)
-			end
-		end
-	end)
-else
-	RegisterNetEvent('esx:onPlayerJoined')
-	AddEventHandler('esx:onPlayerJoined', function()
-		local _source = source
-		while not next(ESX.Jobs) do
-			Wait(50)
-		end
-
-		if not ESX.Players[_source] then
-			onPlayerJoined(_source)
-		end
-	end)
-end
+	if not ESX.Players[_source] then
+		onPlayerJoined(_source)
+	end
+end)
 
 function onPlayerJoined(playerId)
 	local identifier = ESX.GetIdentifier(playerId)
@@ -93,34 +72,32 @@ function createESXPlayer(identifier, playerId, data)
 	end)
 end
 
-if not Config.Multichar then
-	AddEventHandler('playerConnecting', function(_, _, deferrals)
-		deferrals.defer()
-		local playerId = source
-		local identifier = ESX.GetIdentifier(playerId)
+AddEventHandler('playerConnecting', function(_, _, deferrals)
+	deferrals.defer()
+	local playerId = source
+	local identifier = ESX.GetIdentifier(playerId)
 
-		if oneSyncState == "off" or oneSyncState == "legacy" then
-			return deferrals.done(('[ESX] ESX Requires Onesync Infinity to work. This server currently has Onesync set to: %s'):format(oneSyncState))
-		end
+	if oneSyncState == "off" or oneSyncState == "legacy" then
+		return deferrals.done(('[ESX] ESX Requires Onesync Infinity to work. This server currently has Onesync set to: %s'):format(oneSyncState))
+	end
 
-		if not Core.DatabaseConnected then
-			return deferrals.done('[ESX] OxMySQL Was Unable To Connect to your database. Please make sure it is turned on and correctly configured in your server.cfg')
-		end
+	if not Core.DatabaseConnected then
+		return deferrals.done('[ESX] OxMySQL Was Unable To Connect to your database. Please make sure it is turned on and correctly configured in your server.cfg')
+	end
 
-		if identifier then
-			if ESX.GetPlayerFromIdentifier(identifier) then
-				return deferrals.done(
-					('[ESX] There was an error loading your character!\nError code: identifier-active\n\nThis error is caused by a player on this server who has the same identifier as you have. Make sure you are not playing on the same account.\n\nYour identifier: %s'):format(
-						identifier))
-			else
-				return deferrals.done()
-			end
-		else
+	if identifier then
+		if ESX.GetPlayerFromIdentifier(identifier) then
 			return deferrals.done(
-				'[ESX] There was an error loading your character!\nError code: identifier-missing\n\nThe cause of this error is not known, your identifier could not be found. Please come back later or report this problem to the server administration team.')
+				('[ESX] There was an error loading your character!\nError code: identifier-active\n\nThis error is caused by a player on this server who has the same identifier as you have. Make sure you are not playing on the same account.\n\nYour identifier: %s'):format(
+					identifier))
+		else
+			return deferrals.done()
 		end
-	end)
-end
+	else
+		return deferrals.done(
+			'[ESX] There was an error loading your character!\nError code: identifier-missing\n\nThe cause of this error is not known, your identifier could not be found. Please come back later or report this problem to the server administration team.')
+	end
+end)
 
 function loadESXPlayer(identifier, playerId, isNew)
 	local userData = {
