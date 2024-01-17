@@ -30,7 +30,6 @@ server_scripts {
 	'common/modules/*.lua',
 	'common/functions.lua',
 	'server/modules/actions.lua',
-	'server/modules/npwd.lua'
 }
 
 client_scripts {
@@ -47,7 +46,6 @@ client_scripts {
 	'common/functions.lua',
 	'client/modules/actions.lua',
 	'client/modules/death.lua',
-	'client/modules/npwd.lua',
 	'client/modules/scaleform.lua',
 	'client/modules/streaming.lua',
 }
