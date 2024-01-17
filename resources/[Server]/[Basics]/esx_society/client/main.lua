@@ -49,12 +49,24 @@ function OpenBossMenu(society, close, options)
 						if input then
 							local amount = tonumber(input[1])
 							if amount == nil then
-								ESX.ShowNotification(TranslateCap('invalid_amount'))
+								lib.notify({
+									id= "esx_society:ox_lib:invalid_amount",
+									title = TranslateCap('invalid_amount'),
+									duration = 3500,
+									position = 'bottom',
+									type = 'error'
+								})
 							else
 								TriggerServerEvent('esx_society:withdrawMoney', society, amount)
 							end
 						else
-							ESX.ShowNotification("No input")
+							lib.notify({
+								id= "esx_society:ox_lib:no_input",
+								title = "No input",
+								duration = 3500,
+								position = 'bottom',
+								type = 'error'
+							})
 						end
 					end
 				})
@@ -78,12 +90,24 @@ function OpenBossMenu(society, close, options)
 						if input then
 							local amount = tonumber(input[1])
 							if amount == nil then
-								ESX.ShowNotification(TranslateCap('invalid_amount'))
+								lib.notify({
+									id= "esx_society:ox_lib:invalid_amount",
+									title = TranslateCap('invalid_amount'),
+									duration = 3500,
+									position = 'bottom',
+									type = 'error'
+								})
 							else
 								TriggerServerEvent('esx_society:depositMoney', society, amount)
 							end
 						else
-							ESX.ShowNotification("No input")
+							lib.notify({
+								id= "esx_society:ox_lib:no_input",
+								title = "No input",
+								duration = 3500,
+								position = 'bottom',
+								type = 'error'
+							})
 						end
 					end
 				})
@@ -107,12 +131,24 @@ function OpenBossMenu(society, close, options)
 						if input then
 							local amount = tonumber(input[1])
 							if amount == nil then
-								ESX.ShowNotification(TranslateCap('invalid_amount'))
+								lib.notify({
+									id= "esx_society:ox_lib:invalid_amount",
+									title = TranslateCap('invalid_amount'),
+									duration = 3500,
+									position = 'bottom',
+									type = 'error'
+								})
 							else
 								TriggerServerEvent('esx_society:washMoney', society, amount)
 							end
 						else
-							ESX.ShowNotification("No input")
+							lib.notify({
+								id= "esx_society:ox_lib:no_input",
+								title = "No input",
+								duration = 3500,
+								position = 'bottom',
+								type = 'error'
+							})
 						end
 					end
 				})
@@ -224,7 +260,13 @@ function OpenEmployeeList(society, options)
 								title = TranslateCap('fire'),
 								icon = "fas fa-users",
 								onSelect = function()
-									ESX.ShowNotification(TranslateCap('you_have_fired', employee.name))
+									lib.notify({
+										id= "esx_society:ox_lib:you_have_fired",
+										title = TranslateCap('you_have_fired', employee.name),
+										duration = 3500,
+										position = 'bottom',
+										type = 'info'
+									})
 
 									ESX.TriggerServerCallback('esx_society:setJob', function()
 										OpenEmployeeList(society, options)
@@ -261,7 +303,13 @@ function OpenRecruitMenu(society, options)
 					title = players[i].name,
 					icon = "fas fa-user",
 					onSelect = function()
-						ESX.ShowNotification(TranslateCap('you_have_hired', players[i].name))
+						lib.notify({
+							id= "esx_society:ox_lib:you_have_hired",
+							title = TranslateCap('you_have_hired', players[i].name),
+							duration = 3500,
+							position = 'bottom',
+							type = 'info'
+						})
 
 						ESX.TriggerServerCallback('esx_society:setJob', function()
 							OpenRecruitMenu(society, options)
@@ -297,7 +345,13 @@ function OpenPromoteMenu(society, employee, options)
 				title = gradeLabel,
 				icon = "fas fa-user",
 				onSelect = function()
-					ESX.ShowNotification(TranslateCap('you_have_promoted', employee.name, elements.title))
+					lib.notify({
+						id= "esx_society:ox_lib:you_have_promoted",
+						title = TranslateCap('you_have_promoted', employee.name, elements.title),
+						duration = 3500,
+						position = 'bottom',
+						type = 'info'
+					})
 
 					ESX.TriggerServerCallback('esx_society:setJob', function()
 						OpenEmployeeList(society, options)
@@ -345,10 +399,22 @@ function OpenManageSalaryMenu(society, options)
 					if input then
 						local amount = tonumber(input[1])
 						if amount == nil then
-							ESX.ShowNotification(TranslateCap('invalid_value_nochanges'))
+							lib.notify({
+								id= "esx_society:ox_lib:invalid_value_nochanges",
+								title = TranslateCap('invalid_value_nochanges'),
+								duration = 3500,
+								position = 'bottom',
+								type = 'error'
+							})
 							OpenManageSalaryMenu(society, options)
 						elseif amount > Config.MaxSalary then
-							ESX.ShowNotification(TranslateCap('invalid_amount_max'))
+							lib.notify({
+								id= "esx_society:ox_lib:invalid_amount_max",
+								title = TranslateCap('invalid_amount_max'),
+								duration = 3500,
+								position = 'bottom',
+								type = 'error'
+							})
 							OpenManageSalaryMenu(society, options)
 						else
 							ESX.TriggerServerCallback('esx_society:setJobSalary', function()
@@ -356,7 +422,13 @@ function OpenManageSalaryMenu(society, options)
 							end, society, job.grades[i].grade, amount)
 						end
 					else
-						ESX.ShowNotification("No input")
+						lib.notify({
+							id= "esx_society:ox_lib:no_input",
+							title = "No input",
+							duration = 3500,
+							position = 'bottom',
+							type = 'error'
+						})
 					end
 				end
 			})
@@ -405,7 +477,13 @@ function OpenManageGradesMenu(society, options)
 							OpenManageGradesMenu(society, options)
 						end, society, job.grades[i].grade, label)
 					else
-						ESX.ShowNotification("No input")
+						lib.notify({
+							id= "esx_society:ox_lib:no_input",
+							title = "No input",
+							duration = 3500,
+							position = 'bottom',
+							type = 'error'
+						})
 					end
 				end
 			})

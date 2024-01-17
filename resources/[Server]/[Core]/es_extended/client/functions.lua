@@ -3,10 +3,6 @@ Core = {}
 ESX.PlayerData = {}
 ESX.PlayerLoaded = false
 Core.Input = {}
-ESX.UI = {}
-ESX.UI.Menu = {}
-ESX.UI.Menu.RegisteredTypes = {}
-ESX.UI.Menu.Opened = {}
 
 ESX.Game = {}
 ESX.Game.Utils = {}
@@ -65,65 +61,6 @@ function ESX.SetPlayerData(key, val)
     end
 end
 
-function ESX.Progressbar(message, length, Options)
-    if GetResourceState("esx_progressbar") ~= "missing" then
-        return exports["esx_progressbar"]:Progressbar(message, length, Options)
-    end
-
-    print("[^1ERROR^7] ^5ESX Progressbar^7 is Missing!")
-end
-
-function ESX.ShowNotification(message, notifyType, length)
-    if GetResourceState("esx_notify") ~= "missing" then
-        return exports["esx_notify"]:Notify(notifyType, length, message)
-    end
-
-    print("[^1ERROR^7] ^5ESX Notify^7 is Missing!")
-end
-
-function ESX.TextUI(message, notifyType)
-    if GetResourceState("esx_textui") ~= "missing" then
-        return exports["esx_textui"]:TextUI(message, notifyType)
-    end
-
-    print("[^1ERROR^7] ^5ESX TextUI^7 is Missing!")
-end
-
-function ESX.HideUI()
-    if GetResourceState("esx_textui") ~= "missing" then
-        return exports["esx_textui"]:HideUI()
-    end
-
-    print("[^1ERROR^7] ^5ESX TextUI^7 is Missing!")
-end
-
-function ESX.ShowAdvancedNotification(sender, subject, msg, textureDict, iconType, flash, saveToBrief, hudColorIndex)
-    if saveToBrief == nil then
-        saveToBrief = true
-    end
-    AddTextEntry('esxAdvancedNotification', msg)
-    BeginTextCommandThefeedPost('esxAdvancedNotification')
-    if hudColorIndex then
-        ThefeedSetNextPostBackgroundColor(hudColorIndex)
-    end
-    EndTextCommandThefeedPostMessagetext(textureDict, textureDict, false, iconType, sender, subject)
-    EndTextCommandThefeedPostTicker(flash or false, saveToBrief)
-end
-
-function ESX.ShowHelpNotification(msg, thisFrame, beep, duration)
-    AddTextEntry('esxHelpNotification', msg)
-
-    if thisFrame then
-        DisplayHelpTextThisFrame('esxHelpNotification', false)
-    else
-        if beep == nil then
-            beep = true
-        end
-        BeginTextCommandDisplayHelp('esxHelpNotification')
-        EndTextCommandDisplayHelp(0, false, beep, duration or -1)
-    end
-end
-
 function ESX.ShowFloatingHelpNotification(msg, coords)
     AddTextEntry('esxFloatingHelpNotification', msg)
     SetFloatingHelpTextWorldPosition(1, coords)
@@ -150,144 +87,6 @@ ESX.RegisterInput = function(command_name, label, input_group, key, on_press, on
         RegisterCommand("-" .. command_name, on_release)
     end
     RegisterKeyMapping(on_release ~= nil and "+" .. command_name or command_name, label, input_group, key)
-end
-
-function ESX.UI.Menu.RegisterType(menuType, open, close)
-    ESX.UI.Menu.RegisteredTypes[menuType] = {
-        open = open,
-        close = close
-    }
-end
-
-function ESX.UI.Menu.Open(menuType, namespace, name, data, submit, cancel, change, close)
-    local menu = {}
-
-    menu.type = menuType
-    menu.namespace = namespace
-    menu.resourceName = (GetInvokingResource() or "Unknown")
-    menu.name = name
-    menu.data = data
-    menu.submit = submit
-    menu.cancel = cancel
-    menu.change = change
-
-    menu.close = function()
-        ESX.UI.Menu.RegisteredTypes[menuType].close(namespace, name)
-
-        for i = 1, #ESX.UI.Menu.Opened, 1 do
-            if ESX.UI.Menu.Opened[i] then
-                if ESX.UI.Menu.Opened[i].type == menuType and ESX.UI.Menu.Opened[i].namespace == namespace and
-                    ESX.UI.Menu.Opened[i].name == name then
-                    ESX.UI.Menu.Opened[i] = nil
-                end
-            end
-        end
-
-        if close then
-            close()
-        end
-    end
-
-    menu.update = function(query, newData)
-        for i = 1, #menu.data.elements, 1 do
-            local match = true
-
-            for k, v in pairs(query) do
-                if menu.data.elements[i][k] ~= v then
-                    match = false
-                end
-            end
-
-            if match then
-                for k, v in pairs(newData) do
-                    menu.data.elements[i][k] = v
-                end
-            end
-        end
-    end
-
-    menu.refresh = function()
-        ESX.UI.Menu.RegisteredTypes[menuType].open(namespace, name, menu.data)
-    end
-
-    menu.setElement = function(i, key, val)
-        menu.data.elements[i][key] = val
-    end
-
-    menu.setElements = function(newElements)
-        menu.data.elements = newElements
-    end
-
-    menu.setTitle = function(val)
-        menu.data.title = val
-    end
-
-    menu.removeElement = function(query)
-        for i = 1, #menu.data.elements, 1 do
-            for k, v in pairs(query) do
-                if menu.data.elements[i] then
-                    if menu.data.elements[i][k] == v then
-                        table.remove(menu.data.elements, i)
-                        break
-                    end
-                end
-            end
-        end
-    end
-
-    ESX.UI.Menu.Opened[#ESX.UI.Menu.Opened + 1] = menu
-    ESX.UI.Menu.RegisteredTypes[menuType].open(namespace, name, data)
-
-    return menu
-end
-
-function ESX.UI.Menu.Close(menuType, namespace, name)
-    for i = 1, #ESX.UI.Menu.Opened, 1 do
-        if ESX.UI.Menu.Opened[i] then
-            if ESX.UI.Menu.Opened[i].type == menuType and ESX.UI.Menu.Opened[i].namespace == namespace and
-                ESX.UI.Menu.Opened[i].name == name then
-                ESX.UI.Menu.Opened[i].close()
-                ESX.UI.Menu.Opened[i] = nil
-            end
-        end
-    end
-end
-
-function ESX.UI.Menu.CloseAll()
-    for i = 1, #ESX.UI.Menu.Opened, 1 do
-        if ESX.UI.Menu.Opened[i] then
-            ESX.UI.Menu.Opened[i].close()
-            ESX.UI.Menu.Opened[i] = nil
-        end
-    end
-end
-
-function ESX.UI.Menu.GetOpened(menuType, namespace, name)
-    for i = 1, #ESX.UI.Menu.Opened, 1 do
-        if ESX.UI.Menu.Opened[i] then
-            if ESX.UI.Menu.Opened[i].type == menuType and ESX.UI.Menu.Opened[i].namespace == namespace and
-                ESX.UI.Menu.Opened[i].name == name then
-                return ESX.UI.Menu.Opened[i]
-            end
-        end
-    end
-end
-
-function ESX.UI.Menu.GetOpenedMenus()
-    return ESX.UI.Menu.Opened
-end
-
-function ESX.UI.Menu.IsOpen(menuType, namespace, name)
-    return ESX.UI.Menu.GetOpened(menuType, namespace, name) ~= nil
-end
-
-function ESX.UI.ShowInventoryItemNotification(add, item, count)
-    SendNUIMessage({
-        action = 'inventoryNotification',
-        add = add,
-        item = item,
-        count = count
-    })
 end
 
 function ESX.Game.GetPedMugshot(ped, transparent)
@@ -1014,32 +813,6 @@ function ESX.GetAccount(account)
     return nil
 end
 
-RegisterNetEvent('esx:showNotification')
-AddEventHandler('esx:showNotification', function(msg, notifyType, length)
-    ESX.ShowNotification(msg, notifyType, length)
-end)
-
-RegisterNetEvent('esx:showAdvancedNotification')
-AddEventHandler('esx:showAdvancedNotification',
-    function(sender, subject, msg, textureDict, iconType, flash, saveToBrief, hudColorIndex)
-        ESX.ShowAdvancedNotification(sender, subject, msg, textureDict, iconType, flash, saveToBrief, hudColorIndex)
-    end)
-
-RegisterNetEvent('esx:showHelpNotification')
-AddEventHandler('esx:showHelpNotification', function(msg, thisFrame, beep, duration)
-    ESX.ShowHelpNotification(msg, thisFrame, beep, duration)
-end)
-
-AddEventHandler('onResourceStop', function(resourceName)
-    for i = 1, #ESX.UI.Menu.Opened, 1 do
-        if ESX.UI.Menu.Opened[i] then
-            if ESX.UI.Menu.Opened[i].resourceName == resourceName or ESX.UI.Menu.Opened[i].namespace == resourceName then
-                ESX.UI.Menu.Opened[i].close()
-                ESX.UI.Menu.Opened[i] = nil
-            end
-        end
-    end
-end)
 -- Credits to txAdmin for the list. 
 local mismatchedTypes = {
     [`airtug`] = "automobile",       -- trailer

@@ -281,69 +281,6 @@ AddEventHandler('esx:setAccountMoney', function(account)
 	ESX.SetPlayerData('accounts', ESX.PlayerData.accounts)
 end)
 
-if not Config.QSInventory then
-	RegisterNetEvent('esx:addInventoryItem')
-	AddEventHandler('esx:addInventoryItem', function(item, count, showNotification)
-		for k, v in ipairs(ESX.PlayerData.inventory) do
-			if v.name == item then
-				ESX.UI.ShowInventoryItemNotification(true, v.label, count - v.count)
-				ESX.PlayerData.inventory[k].count = count
-				break
-			end
-		end
-
-		if showNotification then
-			ESX.UI.ShowInventoryItemNotification(true, item, count)
-		end
-	end)
-
-	RegisterNetEvent('esx:removeInventoryItem')
-	AddEventHandler('esx:removeInventoryItem', function(item, count, showNotification)
-		for k, v in ipairs(ESX.PlayerData.inventory) do
-			if v.name == item then
-				ESX.UI.ShowInventoryItemNotification(false, v.label, v.count - count)
-				ESX.PlayerData.inventory[k].count = count
-				break
-			end
-		end
-
-		if showNotification then
-			ESX.UI.ShowInventoryItemNotification(false, item, count)
-		end
-	end)
-
-	RegisterNetEvent('esx:addWeapon')
-	AddEventHandler('esx:addWeapon', function()
-		print("[^1ERROR^7] event ^5'esx:addWeapon'^7 Has Been Removed. Please use ^5xPlayer.addWeapon^7 Instead!")
-	end)
-
-	RegisterNetEvent('esx:addWeaponComponent')
-	AddEventHandler('esx:addWeaponComponent', function()
-		print("[^1ERROR^7] event ^5'esx:addWeaponComponent'^7 Has Been Removed. Please use ^5xPlayer.addWeaponComponent^7 Instead!")
-	end)
-
-	RegisterNetEvent('esx:setWeaponAmmo')
-	AddEventHandler('esx:setWeaponAmmo', function()
-		print("[^1ERROR^7] event ^5'esx:setWeaponAmmo'^7 Has Been Removed. Please use ^5xPlayer.addWeaponAmmo^7 Instead!")
-	end)
-
-	RegisterNetEvent('esx:setWeaponTint')
-	AddEventHandler('esx:setWeaponTint', function(weapon, weaponTintIndex)
-		SetPedWeaponTintIndex(ESX.PlayerData.ped, joaat(weapon), weaponTintIndex)
-	end)
-
-	RegisterNetEvent('esx:removeWeapon')
-	AddEventHandler('esx:removeWeapon', function()
-		print("[^1ERROR^7] event ^5'esx:removeWeapon'^7 Has Been Removed. Please use ^5xPlayer.removeWeapon^7 Instead!")
-	end)
-
-	RegisterNetEvent('esx:removeWeaponComponent')
-	AddEventHandler('esx:removeWeaponComponent', function(weapon, weaponComponent)
-		local componentHash = ESX.GetWeaponComponent(weapon, weaponComponent).hash
-		RemoveWeaponComponentFromPed(ESX.PlayerData.ped, joaat(weapon), componentHash)
-	end)
-end
-
 RegisterNetEvent('esx:setJob')
 AddEventHandler('esx:setJob', function(Job)
 	ESX.SetPlayerData('job', Job)
@@ -513,7 +450,13 @@ AddEventHandler("esx:tpm", function()
 		end
 		local blipMarker = GetFirstBlipInfoId(8)
 		if not DoesBlipExist(blipMarker) then
-			ESX.ShowNotification(TranslateCap('tpm_nowaypoint'), true, false, 140)
+			lib.notify({
+				id= "es_extended:ox_lib:tpm_nowaypoint",
+				title = TranslateCap('tpm_nowaypoint'),
+				duration = 3500,
+				position = 'bottom',
+				type = 'error'
+			})
 			return 'marker'
 		end
 
@@ -576,12 +519,24 @@ AddEventHandler("esx:tpm", function()
 			-- If we can't find the coords, set the coords to the old ones.
 			-- We don't unpack them before since they aren't in a loop and only called once.
 			SetPedCoordsKeepVehicle(ped, oldCoords['x'], oldCoords['y'], oldCoords['z'] - 1.0)
-			ESX.ShowNotification(TranslateCap('tpm_success'), true, false, 140)
+			lib.notify({
+				id= "es_extended:ox_lib:tpm_success",
+				title = TranslateCap('tpm_success'),
+				duration = 3500,
+				position = 'bottom',
+				type = 'success'
+			})
 		end
 
 		-- If Z coord was found, set coords in found coords.
 		SetPedCoordsKeepVehicle(ped, x, y, groundZ)
-		ESX.ShowNotification(TranslateCap('tpm_success'), true, false, 140)
+		lib.notify({
+			id= "es_extended:ox_lib:tpm_success",
+			title = TranslateCap('tpm_success'),
+			duration = 3500,
+			position = 'bottom',
+			type = 'success'
+		})
 	end)
 end)
 
@@ -647,7 +602,13 @@ AddEventHandler("esx:noclip", function()
 			CreateThread(noclipThread)
 		end
 
-		ESX.ShowNotification(TranslateCap('noclip_message', noclip and Translate('enabled') or Translate('disabled')), true, false, 140)
+		lib.notify({
+			id= "es_extended:ox_lib:noclip_message",
+			title = TranslateCap('noclip_message', noclip and Translate('enabled') or Translate('disabled')),
+			duration = 3500,
+			position = 'bottom',
+			type = 'info'
+		})
 	end)
 end)
 
