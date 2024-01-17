@@ -2,6 +2,7 @@ Locales['en'] = {
   ['actions']                = 'actions',
   ['boss_menu']              = 'boss menu',
   ['money_generic']          = '$%s',
+  ['currency']               = ' $',
   ['deposit_amount']         = 'deposit amount',
   ['deposit_society_money']  = 'deposit society money',
   ['do_you_want_to_recruit'] = 'do you want to recruit %s?',
@@ -57,5 +58,6 @@ Locales['en'] = {
   ['change_label_description'] = 'Change a grade label', 
   ['money_remove_reason'] = 'Society Deposit', 
   ['money_add_reason'] = 'Society Withdraw',
+  ['name_not_found'] = 'Name not found.',
   ['employees_title'] = 'Employees'
 }
