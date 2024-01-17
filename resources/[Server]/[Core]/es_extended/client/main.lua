@@ -87,34 +87,6 @@ AddEventHandler('esx:playerLoaded', function(xPlayer, isNew, skin)
 	SetPlayerHealthRechargeMultiplier(playerId, 0.0)
 	----------
 
-	CreateThread(function()
-		while true do
-			-- Do not remove this, it's used for disabling the display of the ammo.
-			----------
-			DisplayAmmoThisFrame(false)
-			----------
-
-			-- Do not remove this, it's used for disabling the weapon wheel.
-			----------
-			BlockWeaponWheelThisFrame()
-			DisableControlAction(0, 37, true)
-			----------
-
-			if Config.DisableAimAssist then
-				if IsPedArmed(ESX.PlayerData.ped, 4) then
-					SetPlayerLockonRangeOverride(playerId, 2.0)
-				end
-			end
-
-			-- Do not remove this, it's used for disabling the reward of weapons from vehicles.
-			----------
-			DisablePlayerVehicleRewards(playerId)
-			----------
-
-			Wait(0)
-		end
-	end)
-
 	-- Do not remove this, it's used for disabling the dispatch services from GTAV (cops, ems, etc).
 	----------
 	for i = 1, 15 do
