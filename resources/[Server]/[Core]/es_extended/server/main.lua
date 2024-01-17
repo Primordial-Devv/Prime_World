@@ -188,7 +188,7 @@ function loadESXPlayer(identifier, playerId, isNew)
 	end
 
 	-- Inventory
-	if not Config.OxInventory and not Config.QSInventory then
+	if not Config.QSInventory then
 		if result.inventory and result.inventory ~= '' then
 			local inventory = json.decode(result.inventory)
 
@@ -245,7 +245,7 @@ function loadESXPlayer(identifier, playerId, isNew)
 	end
 
 	-- Loadout
-	if not Config.OxInventory and not Config.QSInventory then
+	if not Config.QSInventory then
 		if result.loadout and result.loadout ~= '' then
 			local loadout = json.decode(result.loadout)
 
@@ -354,19 +354,7 @@ function loadESXPlayer(identifier, playerId, isNew)
 		}, isNew,
 		userData.skin)
 
-	if not Config.OxInventory then
-		xPlayer.triggerEvent('esx:createMissingPickups', Core.Pickups)
-	else
-		exports.ox_inventory:setPlayerInventory(xPlayer, userData.inventory)
-
-		if isNew then
-			for account, money in pairs(Config.StartingAccountMoney) do
-				if account == 'money' or account == 'black_money' then
-					exports.ox_inventory:AddItem(playerId, account, money)
-				end
-			end
-		end
-	end
+	xPlayer.triggerEvent('esx:createMissingPickups', Core.Pickups)
 	xPlayer.triggerEvent('esx:registerSuggestions', Core.RegisteredCommands)
 	print(('[^2INFO^0] Player ^5"%s"^0 has connected to the server. ID: ^5%s^7'):format(xPlayer.getName(), playerId))
 end
@@ -433,7 +421,7 @@ AddEventHandler('esx:playerLogout', function(playerId, cb)
 	TriggerClientEvent("esx:onPlayerLogout", playerId)
 end)
 
-if not Config.OxInventory and not Config.QSInventory then
+if not Config.QSInventory then
 	RegisterNetEvent('esx:updateWeaponAmmo')
 	AddEventHandler('esx:updateWeaponAmmo', function(weaponName, ammoCount)
 		local xPlayer = ESX.GetPlayerFromId(source)
