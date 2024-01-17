@@ -44,17 +44,6 @@ end, true, {
 	}
 })
 
-local upgrades = Config.SpawnVehMaxUpgrades and
-	{
-		plate = "ADMINCAR",
-		modEngine = 3,
-		modBrakes = 2,
-		modTransmission = 2,
-		modSuspension = 3,
-		modArmor = true,
-		windowTint = 1
-	} or {}
-
 ESX.RegisterCommand('car', 'admin', function(xPlayer, args, showError)
 	if not xPlayer then
 		return showError('[^1ERROR^7] The xPlayer value is nil')
@@ -81,7 +70,7 @@ ESX.RegisterCommand('car', 'admin', function(xPlayer, args, showError)
 		})
 	end
 
-	ESX.OneSync.SpawnVehicle(args.car, playerCoords, playerHeading, upgrades, function(networkId)
+	ESX.OneSync.SpawnVehicle(args.car, playerCoords, playerHeading, {}, function(networkId)
 		if networkId then
 			local vehicle = NetworkGetEntityFromNetworkId(networkId)
 			for _ = 1, 20 do

@@ -49,10 +49,11 @@ AddEventHandler('esx:playerLoaded', function(xPlayer, isNew, skin)
 
 	while ESX.PlayerData.ped == nil do Wait(20) end
 
-	if Config.EnablePVP then
-		SetCanAttackFriendly(ESX.PlayerData.ped, true, false)
-		NetworkSetFriendlyFireOption(true)
-	end
+	-- Do not remove this, it's used for enabling the PVP system.
+	----------
+	SetCanAttackFriendly(ESX.PlayerData.ped, true, false)
+	NetworkSetFriendlyFireOption(true)
+	----------
 
 	local playerId = PlayerId()
     local metadata = ESX.PlayerData.metadata
@@ -64,20 +65,13 @@ AddEventHandler('esx:playerLoaded', function(xPlayer, isNew, skin)
         SetPedArmour(ESX.PlayerData.ped, metadata.armor)
     end
 
-	-- RemoveHudComponents
-	for i = 1, #(Config.RemoveHudComponents) do
-		if Config.RemoveHudComponents[i] then
-			SetHudComponentPosition(i, 999999.0, 999999.0)
-		end
+	-- Do not remove this, it's used for disabling the drops of weapons from NPCs.
+	----------
+	local weaponPickups = { `PICKUP_WEAPON_CARBINERIFLE`, `PICKUP_WEAPON_PISTOL`, `PICKUP_WEAPON_PUMPSHOTGUN` }
+	for i = 1, #weaponPickups do
+		ToggleUsePickupsForPlayer(playerId, weaponPickups[i], false)
 	end
-
-	-- DisableNPCDrops
-	if Config.DisableNPCDrops then
-		local weaponPickups = { `PICKUP_WEAPON_CARBINERIFLE`, `PICKUP_WEAPON_PISTOL`, `PICKUP_WEAPON_PUMPSHOTGUN` }
-		for i = 1, #weaponPickups do
-			ToggleUsePickupsForPlayer(playerId, weaponPickups[i], false)
-		end
-	end
+	----------
 
 	if Config.DisableVehicleSeatShuff then
 		AddEventHandler('esx:enteredVehicle', function(vehicle, _, seat)
@@ -88,43 +82,45 @@ AddEventHandler('esx:playerLoaded', function(xPlayer, isNew, skin)
 		end)
 	end
 
-	if Config.DisableHealthRegeneration then
-		SetPlayerHealthRechargeMultiplier(playerId, 0.0)
-	end
+	-- Do not remove this, it's used for disabling the regen of health.
+	----------
+	SetPlayerHealthRechargeMultiplier(playerId, 0.0)
+	----------
 
-	if Config.DisableWeaponWheel or Config.DisableAimAssist or Config.DisableVehicleRewards then
-		CreateThread(function()
-			while true do
-				if Config.DisableDisplayAmmo then
-					DisplayAmmoThisFrame(false)
+	CreateThread(function()
+		while true do
+			-- Do not remove this, it's used for disabling the display of the ammo.
+			----------
+			DisplayAmmoThisFrame(false)
+			----------
+
+			-- Do not remove this, it's used for disabling the weapon wheel.
+			----------
+			BlockWeaponWheelThisFrame()
+			DisableControlAction(0, 37, true)
+			----------
+
+			if Config.DisableAimAssist then
+				if IsPedArmed(ESX.PlayerData.ped, 4) then
+					SetPlayerLockonRangeOverride(playerId, 2.0)
 				end
-
-				if Config.DisableWeaponWheel then
-					BlockWeaponWheelThisFrame()
-					DisableControlAction(0, 37, true)
-				end
-
-				if Config.DisableAimAssist then
-					if IsPedArmed(ESX.PlayerData.ped, 4) then
-						SetPlayerLockonRangeOverride(playerId, 2.0)
-					end
-				end
-
-				if Config.DisableVehicleRewards then
-					DisablePlayerVehicleRewards(playerId)
-				end
-
-				Wait(0)
 			end
-		end)
-	end
 
-	-- Disable Dispatch services
-	if Config.DisableDispatchServices then
-		for i = 1, 15 do
-			EnableDispatchService(i, false)
+			-- Do not remove this, it's used for disabling the reward of weapons from vehicles.
+			----------
+			DisablePlayerVehicleRewards(playerId)
+			----------
+
+			Wait(0)
 		end
+	end)
+
+	-- Do not remove this, it's used for disabling the dispatch services from GTAV (cops, ems, etc).
+	----------
+	for i = 1, 15 do
+		EnableDispatchService(i, false)
 	end
+	----------
 
 	-- Disable Scenarios
 	if Config.DisableScenarios then
@@ -186,8 +182,6 @@ AddEventHandler('esx:playerLoaded', function(xPlayer, isNew, skin)
 			SetScenarioTypeEnabled(v, false)
 		end
 	end
-
-	SetDefaultVehicleNumberPlateTextPattern(-1, Config.CustomAIPlates)
 	StartServerSyncLoops()
 end)
 
@@ -448,11 +442,11 @@ function StartServerSyncLoops()
 	end
 end
 
--- disable wanted level
-if not Config.EnableWantedLevel then
-	ClearPlayerWantedLevel(PlayerId())
-	SetMaxWantedLevel(0)
-end
+-- Do not remove this, it's used for disabling the default GTA wanted level.
+----------
+ClearPlayerWantedLevel(PlayerId())
+SetMaxWantedLevel(0)
+----------
 
 if not Config.QSInventory then
 	CreateThread(function()
