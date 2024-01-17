@@ -7,13 +7,12 @@
       "citizenfx": {
         "id": "Primordial_Dev",
         "identifier": "fivem:12926535",
-        "data": {
-          "sub": "30118869a42e878c869f35120f8f1de9",
-          "nameid": "https://forum.cfx.re/internal/user/12926535",
-          "name": "Primordial_Dev",
-          "picture": "https://forum.cfx.re/user_avatar/forum.cfx.re/primordial_dev/256/4074515_2.png",
-          "profile": "https://forum.cfx.re/u/Primordial_Dev"
-        }
+        "data": {}
+      },
+      "discord": {
+        "id": "1184805581626810415",
+        "identifier": "discord:1184805581626810415",
+        "data": {}
       }
     },
     "permissions": []
