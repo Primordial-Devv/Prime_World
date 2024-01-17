@@ -35,8 +35,8 @@ Config.PedMenuGroup = "group.admin"
 
 Config.EnableJobOutfitsCommand = false -- Enables /joboutfits and /gangoutfits commands
 
-Config.ShowNearestShopOnly = false
-Config.HideRadar = false -- Hides the minimap while the appearance menu is open
+Config.ShowNearestShopOnly = true
+Config.HideRadar = true -- Hides the minimap while the appearance menu is open
 Config.NearestShopBlipUpdateDelay = 10000
 
 Config.InvincibleDuringCustomization = true
