@@ -524,24 +524,6 @@ function ESX.GetUsableItems()
 	return Usables
 end
 
-if not Config.QSInventory then
-	function ESX.CreatePickup(itemType, name, count, label, playerId, components, tintIndex, coords)
-		local pickupId = (Core.PickupId == 65635 and 0 or Core.PickupId + 1)
-		local xPlayer = ESX.Players[playerId]
-		coords = ( (type(coords) == "vector3" or type(coords) == "vector4") and coords.xyz or xPlayer.getCoords(true))
-
-		Core.Pickups[pickupId] = { type = itemType, name = name, count = count, label = label, coords = coords }
-
-		if itemType == 'item_weapon' then
-			Core.Pickups[pickupId].components = components
-			Core.Pickups[pickupId].tintIndex = tintIndex
-		end
-
-		TriggerClientEvent('esx:createPickup', -1, pickupId, label, coords, itemType, name, components, tintIndex)
-		Core.PickupId = pickupId
-	end
-end
-
 function ESX.DoesJobExist(job, grade)
 	grade = tostring(grade)
 

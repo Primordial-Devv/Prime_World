@@ -22,41 +22,38 @@ RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(xPlayer, isNew, skin)
 	ESX.PlayerData = xPlayer
 
-	if Config.Multichar then
-		Wait(3000)
-	else
-		exports.spawnmanager:spawnPlayer({
-			x = ESX.PlayerData.coords.x,
-			y = ESX.PlayerData.coords.y,
-			z = ESX.PlayerData.coords.z + 0.25,
-			heading = ESX.PlayerData.coords.heading,
-			model = `mp_m_freemode_01`,
-			skipFade = false
-		}, function()
-			TriggerServerEvent('esx:onPlayerSpawn')
-			TriggerEvent('esx:onPlayerSpawn')
-			TriggerEvent('esx:restoreLoadout')
+	exports.spawnmanager:spawnPlayer({
+		x = ESX.PlayerData.coords.x,
+		y = ESX.PlayerData.coords.y,
+		z = ESX.PlayerData.coords.z + 0.25,
+		heading = ESX.PlayerData.coords.heading,
+		model = `mp_m_freemode_01`,
+		skipFade = false
+	}, function()
+		TriggerServerEvent('esx:onPlayerSpawn')
+		TriggerEvent('esx:onPlayerSpawn')
+		TriggerEvent('esx:restoreLoadout')
 
-			if isNew then
-				TriggerEvent('skinchanger:loadDefaultModel', skin.sex == 0)
-			elseif skin then
-				TriggerEvent('skinchanger:loadSkin', skin)
-			end
+		if isNew then
+			TriggerEvent('skinchanger:loadDefaultModel', skin.sex == 0)
+		elseif skin then
+			TriggerEvent('skinchanger:loadSkin', skin)
+		end
 
-			TriggerEvent('esx:loadingScreenOff')
-			ShutdownLoadingScreen()
-			ShutdownLoadingScreenNui()
-		end)
-	end
+		TriggerEvent('esx:loadingScreenOff')
+		ShutdownLoadingScreen()
+		ShutdownLoadingScreenNui()
+	end)
 
 	ESX.PlayerLoaded = true
 
 	while ESX.PlayerData.ped == nil do Wait(20) end
 
-	if Config.EnablePVP then
-		SetCanAttackFriendly(ESX.PlayerData.ped, true, false)
-		NetworkSetFriendlyFireOption(true)
-	end
+	-- Do not remove this, it's used for enabling the PVP system.
+	----------
+	SetCanAttackFriendly(ESX.PlayerData.ped, true, false)
+	NetworkSetFriendlyFireOption(true)
+	----------
 
 	local playerId = PlayerId()
     local metadata = ESX.PlayerData.metadata
@@ -68,20 +65,13 @@ AddEventHandler('esx:playerLoaded', function(xPlayer, isNew, skin)
         SetPedArmour(ESX.PlayerData.ped, metadata.armor)
     end
 
-	-- RemoveHudComponents
-	for i = 1, #(Config.RemoveHudComponents) do
-		if Config.RemoveHudComponents[i] then
-			SetHudComponentPosition(i, 999999.0, 999999.0)
-		end
+	-- Do not remove this, it's used for disabling the drops of weapons from NPCs.
+	----------
+	local weaponPickups = { `PICKUP_WEAPON_CARBINERIFLE`, `PICKUP_WEAPON_PISTOL`, `PICKUP_WEAPON_PUMPSHOTGUN` }
+	for i = 1, #weaponPickups do
+		ToggleUsePickupsForPlayer(playerId, weaponPickups[i], false)
 	end
-
-	-- DisableNPCDrops
-	if Config.DisableNPCDrops then
-		local weaponPickups = { `PICKUP_WEAPON_CARBINERIFLE`, `PICKUP_WEAPON_PISTOL`, `PICKUP_WEAPON_PUMPSHOTGUN` }
-		for i = 1, #weaponPickups do
-			ToggleUsePickupsForPlayer(playerId, weaponPickups[i], false)
-		end
-	end
+	----------
 
 	if Config.DisableVehicleSeatShuff then
 		AddEventHandler('esx:enteredVehicle', function(vehicle, _, seat)
@@ -92,43 +82,17 @@ AddEventHandler('esx:playerLoaded', function(xPlayer, isNew, skin)
 		end)
 	end
 
-	if Config.DisableHealthRegeneration then
-		SetPlayerHealthRechargeMultiplier(playerId, 0.0)
+	-- Do not remove this, it's used for disabling the regen of health.
+	----------
+	SetPlayerHealthRechargeMultiplier(playerId, 0.0)
+	----------
+
+	-- Do not remove this, it's used for disabling the dispatch services from GTAV (cops, ems, etc).
+	----------
+	for i = 1, 15 do
+		EnableDispatchService(i, false)
 	end
-
-	if Config.DisableWeaponWheel or Config.DisableAimAssist or Config.DisableVehicleRewards then
-		CreateThread(function()
-			while true do
-				if Config.DisableDisplayAmmo then
-					DisplayAmmoThisFrame(false)
-				end
-
-				if Config.DisableWeaponWheel then
-					BlockWeaponWheelThisFrame()
-					DisableControlAction(0, 37, true)
-				end
-
-				if Config.DisableAimAssist then
-					if IsPedArmed(ESX.PlayerData.ped, 4) then
-						SetPlayerLockonRangeOverride(playerId, 2.0)
-					end
-				end
-
-				if Config.DisableVehicleRewards then
-					DisablePlayerVehicleRewards(playerId)
-				end
-
-				Wait(0)
-			end
-		end)
-	end
-
-	-- Disable Dispatch services
-	if Config.DisableDispatchServices then
-		for i = 1, 15 do
-			EnableDispatchService(i, false)
-		end
-	end
+	----------
 
 	-- Disable Scenarios
 	if Config.DisableScenarios then
@@ -190,8 +154,6 @@ AddEventHandler('esx:playerLoaded', function(xPlayer, isNew, skin)
 			SetScenarioTypeEnabled(v, false)
 		end
 	end
-
-	SetDefaultVehicleNumberPlateTextPattern(-1, Config.CustomAIPlates)
 	StartServerSyncLoops()
 end)
 
@@ -225,31 +187,6 @@ end)
 
 AddEventHandler('esx:restoreLoadout', function()
 	ESX.SetPlayerData('ped', PlayerPedId())
-
-	if not Config.QSInventory then
-		local ammoTypes = {}
-		RemoveAllPedWeapons(ESX.PlayerData.ped, true)
-
-		for _, v in ipairs(ESX.PlayerData.loadout) do
-			local weaponName = v.name
-			local weaponHash = joaat(weaponName)
-
-			GiveWeaponToPed(ESX.PlayerData.ped, weaponHash, 0, false, false)
-			SetPedWeaponTintIndex(ESX.PlayerData.ped, weaponHash, v.tintIndex)
-
-			local ammoType = GetPedAmmoTypeFromWeapon(ESX.PlayerData.ped, weaponHash)
-
-			for _, v2 in ipairs(v.components) do
-				local componentHash = ESX.GetWeaponComponent(weaponName, v2).hash
-				GiveWeaponComponentToPed(ESX.PlayerData.ped, weaponHash, componentHash)
-			end
-
-			if not ammoTypes[ammoType] then
-				AddAmmoToPed(ESX.PlayerData.ped, weaponHash, v.ammo)
-				ammoTypes[ammoType] = true
-			end
-		end
-	end
 end)
 
 -- Credit: https://github.com/LukeWasTakenn, https://github.com/LukeWasTakenn/luke_garages/blob/master/client/client.lua#L331-L352
@@ -291,116 +228,10 @@ AddEventHandler('esx:setAccountMoney', function(account)
 	ESX.SetPlayerData('accounts', ESX.PlayerData.accounts)
 end)
 
-if not Config.QSInventory then
-	RegisterNetEvent('esx:addInventoryItem')
-	AddEventHandler('esx:addInventoryItem', function(item, count, showNotification)
-		for k, v in ipairs(ESX.PlayerData.inventory) do
-			if v.name == item then
-				ESX.UI.ShowInventoryItemNotification(true, v.label, count - v.count)
-				ESX.PlayerData.inventory[k].count = count
-				break
-			end
-		end
-
-		if showNotification then
-			ESX.UI.ShowInventoryItemNotification(true, item, count)
-		end
-	end)
-
-	RegisterNetEvent('esx:removeInventoryItem')
-	AddEventHandler('esx:removeInventoryItem', function(item, count, showNotification)
-		for k, v in ipairs(ESX.PlayerData.inventory) do
-			if v.name == item then
-				ESX.UI.ShowInventoryItemNotification(false, v.label, v.count - count)
-				ESX.PlayerData.inventory[k].count = count
-				break
-			end
-		end
-
-		if showNotification then
-			ESX.UI.ShowInventoryItemNotification(false, item, count)
-		end
-	end)
-
-	RegisterNetEvent('esx:addWeapon')
-	AddEventHandler('esx:addWeapon', function()
-		print("[^1ERROR^7] event ^5'esx:addWeapon'^7 Has Been Removed. Please use ^5xPlayer.addWeapon^7 Instead!")
-	end)
-
-	RegisterNetEvent('esx:addWeaponComponent')
-	AddEventHandler('esx:addWeaponComponent', function()
-		print("[^1ERROR^7] event ^5'esx:addWeaponComponent'^7 Has Been Removed. Please use ^5xPlayer.addWeaponComponent^7 Instead!")
-	end)
-
-	RegisterNetEvent('esx:setWeaponAmmo')
-	AddEventHandler('esx:setWeaponAmmo', function()
-		print("[^1ERROR^7] event ^5'esx:setWeaponAmmo'^7 Has Been Removed. Please use ^5xPlayer.addWeaponAmmo^7 Instead!")
-	end)
-
-	RegisterNetEvent('esx:setWeaponTint')
-	AddEventHandler('esx:setWeaponTint', function(weapon, weaponTintIndex)
-		SetPedWeaponTintIndex(ESX.PlayerData.ped, joaat(weapon), weaponTintIndex)
-	end)
-
-	RegisterNetEvent('esx:removeWeapon')
-	AddEventHandler('esx:removeWeapon', function()
-		print("[^1ERROR^7] event ^5'esx:removeWeapon'^7 Has Been Removed. Please use ^5xPlayer.removeWeapon^7 Instead!")
-	end)
-
-	RegisterNetEvent('esx:removeWeaponComponent')
-	AddEventHandler('esx:removeWeaponComponent', function(weapon, weaponComponent)
-		local componentHash = ESX.GetWeaponComponent(weapon, weaponComponent).hash
-		RemoveWeaponComponentFromPed(ESX.PlayerData.ped, joaat(weapon), componentHash)
-	end)
-end
-
 RegisterNetEvent('esx:setJob')
 AddEventHandler('esx:setJob', function(Job)
 	ESX.SetPlayerData('job', Job)
 end)
-
-if not Config.QSInventory then
-	RegisterNetEvent('esx:createPickup')
-	AddEventHandler('esx:createPickup', function(pickupId, label, coords, itemType, name, components, tintIndex)
-		local function setObjectProperties(object)
-			SetEntityAsMissionEntity(object, true, false)
-			PlaceObjectOnGroundProperly(object)
-			FreezeEntityPosition(object, true)
-			SetEntityCollision(object, false, true)
-
-			pickups[pickupId] = {
-				obj = object,
-				label = label,
-				inRange = false,
-				coords = coords
-			}
-		end
-
-		if itemType == 'item_weapon' then
-			local weaponHash = joaat(name)
-			ESX.Streaming.RequestWeaponAsset(weaponHash)
-			local pickupObject = CreateWeaponObject(weaponHash, 50, coords.x, coords.y, coords.z, true, 1.0, 0)
-			SetWeaponObjectTintIndex(pickupObject, tintIndex)
-
-			for _, v in ipairs(components) do
-				local component = ESX.GetWeaponComponent(name, v)
-				GiveWeaponComponentToWeaponObject(pickupObject, component.hash)
-			end
-
-			setObjectProperties(pickupObject)
-		else
-			ESX.Game.SpawnLocalObject('prop_money_bag_01', coords, setObjectProperties)
-		end
-	end)
-
-	RegisterNetEvent('esx:createMissingPickups')
-	AddEventHandler('esx:createMissingPickups', function(missingPickups)
-		for pickupId, pickup in pairs(missingPickups) do
-			TriggerEvent('esx:createPickup', pickupId, pickup.label, vector3(pickup.coords.x, pickup.coords.y, pickup.coords.z - 1.0), pickup.type, pickup.name
-			, pickup.components, pickup.tintIndex)
-		end
-	end)
-end
 
 RegisterNetEvent('esx:registerSuggestions')
 AddEventHandler('esx:registerSuggestions', function(registeredCommands)
@@ -411,109 +242,15 @@ AddEventHandler('esx:registerSuggestions', function(registeredCommands)
 	end
 end)
 
-if not Config.QSInventory then
-	RegisterNetEvent('esx:removePickup')
-	AddEventHandler('esx:removePickup', function(pickupId)
-		if pickups[pickupId] and pickups[pickupId].obj then
-			ESX.Game.DeleteObject(pickups[pickupId].obj)
-			pickups[pickupId] = nil
-		end
-	end)
-end
-
 function StartServerSyncLoops()
-	if not Config.QSInventory then
-		-- keep track of ammo
-
-		CreateThread(function()
-			local currentWeapon = { Ammo = 0 }
-			while ESX.PlayerLoaded do
-				local sleep = 1500
-				if GetSelectedPedWeapon(ESX.PlayerData.ped) ~= -1569615261 then
-					sleep = 1000
-					local _, weaponHash = GetCurrentPedWeapon(ESX.PlayerData.ped, true)
-					local weapon = ESX.GetWeaponFromHash(weaponHash)
-					if weapon then
-						local ammoCount = GetAmmoInPedWeapon(ESX.PlayerData.ped, weaponHash)
-						if weapon.name ~= currentWeapon.name then
-							currentWeapon.Ammo = ammoCount
-							currentWeapon.name = weapon.name
-						else
-							if ammoCount ~= currentWeapon.Ammo then
-								currentWeapon.Ammo = ammoCount
-								TriggerServerEvent('esx:updateWeaponAmmo', weapon.name, ammoCount)
-							end
-						end
-					end
-				end
-				Wait(sleep)
-			end
-		end)
-	end
+	return
 end
 
-if Config.EnableDefaultInventory then
-	RegisterCommand('showinv', function()
-		if not ESX.PlayerData.dead then
-			ESX.ShowInventory()
-		end
-	end)
-
-	RegisterKeyMapping('showinv', TranslateCap('keymap_showinventory'), 'keyboard', 'F2')
-end
-
--- disable wanted level
-if not Config.EnableWantedLevel then
-	ClearPlayerWantedLevel(PlayerId())
-	SetMaxWantedLevel(0)
-end
-
-if not Config.QSInventory then
-	CreateThread(function()
-		while true do
-			local Sleep = 1500
-			local playerCoords = GetEntityCoords(ESX.PlayerData.ped)
-			local _, closestDistance = ESX.Game.GetClosestPlayer(playerCoords)
-
-			for pickupId, pickup in pairs(pickups) do
-				local distance = #(playerCoords - pickup.coords)
-
-				if distance < 5 then
-					Sleep = 0
-					local label = pickup.label
-
-					if distance < 1 then
-						if IsControlJustReleased(0, 38) then
-							if IsPedOnFoot(ESX.PlayerData.ped) and (closestDistance == -1 or closestDistance > 3) and not pickup.inRange then
-								pickup.inRange = true
-
-								local dict, anim = 'weapons@first_person@aim_rng@generic@projectile@sticky_bomb@', 'plant_floor'
-								ESX.Streaming.RequestAnimDict(dict)
-								TaskPlayAnim(ESX.PlayerData.ped, dict, anim, 8.0, 1.0, 1000, 16, 0.0, false, false, false)
-								RemoveAnimDict(dict)
-								Wait(1000)
-
-								TriggerServerEvent('esx:onPickup', pickupId)
-								PlaySoundFrontend(-1, 'PICK_UP', 'HUD_FRONTEND_DEFAULT_SOUNDSET', false)
-							end
-						end
-
-						label = ('%s~n~%s'):format(label, TranslateCap('threw_pickup_prompt'))
-					end
-
-					ESX.Game.Utils.DrawText3D({
-						x = pickup.coords.x,
-						y = pickup.coords.y,
-						z = pickup.coords.z + 0.25
-					}, label, 1.2, 1)
-				elseif pickup.inRange then
-					pickup.inRange = false
-				end
-			end
-			Wait(Sleep)
-		end
-	end)
-end
+-- Do not remove this, it's used for disabling the default GTA wanted level.
+----------
+ClearPlayerWantedLevel(PlayerId())
+SetMaxWantedLevel(0)
+----------
 
 ----- Admin commands from esx_adminplus
 
@@ -533,7 +270,13 @@ AddEventHandler("esx:tpm", function()
 		end
 		local blipMarker = GetFirstBlipInfoId(8)
 		if not DoesBlipExist(blipMarker) then
-			ESX.ShowNotification(TranslateCap('tpm_nowaypoint'), true, false, 140)
+			lib.notify({
+				id= "es_extended:ox_lib:tpm_nowaypoint",
+				title = TranslateCap('tpm_nowaypoint'),
+				duration = 3500,
+				position = 'bottom',
+				type = 'error'
+			})
 			return 'marker'
 		end
 
@@ -596,12 +339,24 @@ AddEventHandler("esx:tpm", function()
 			-- If we can't find the coords, set the coords to the old ones.
 			-- We don't unpack them before since they aren't in a loop and only called once.
 			SetPedCoordsKeepVehicle(ped, oldCoords['x'], oldCoords['y'], oldCoords['z'] - 1.0)
-			ESX.ShowNotification(TranslateCap('tpm_success'), true, false, 140)
+			lib.notify({
+				id= "es_extended:ox_lib:tpm_success",
+				title = TranslateCap('tpm_success'),
+				duration = 3500,
+				position = 'bottom',
+				type = 'success'
+			})
 		end
 
 		-- If Z coord was found, set coords in found coords.
 		SetPedCoordsKeepVehicle(ped, x, y, groundZ)
-		ESX.ShowNotification(TranslateCap('tpm_success'), true, false, 140)
+		lib.notify({
+			id= "es_extended:ox_lib:tpm_success",
+			title = TranslateCap('tpm_success'),
+			duration = 3500,
+			position = 'bottom',
+			type = 'success'
+		})
 	end)
 end)
 
@@ -667,7 +422,13 @@ AddEventHandler("esx:noclip", function()
 			CreateThread(noclipThread)
 		end
 
-		ESX.ShowNotification(TranslateCap('noclip_message', noclip and Translate('enabled') or Translate('disabled')), true, false, 140)
+		lib.notify({
+			id= "es_extended:ox_lib:noclip_message",
+			title = TranslateCap('noclip_message', noclip and Translate('enabled') or Translate('disabled')),
+			duration = 3500,
+			position = 'bottom',
+			type = 'info'
+		})
 	end)
 end)
 
