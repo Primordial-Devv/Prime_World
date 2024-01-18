@@ -434,3 +434,36 @@ for key in pairs(DoNotUse) do
         print(("[^1ERROR^7] WE STOPPED A RESOURCE THAT WILL BREAK ^1ESX^7, PLEASE REMOVE ^5%s^7"):format(key))
     end
 end
+
+
+
+
+
+
+
+
+
+
+local function isDeadState(src, bool)
+	if not src or bool == nil then return end
+
+	Player(src).state:set('isDead', bool, true)
+end
+
+RegisterNetEvent('esx_ambulancejob:setDeathStatus')
+AddEventHandler('esx_ambulancejob:setDeathStatus', function(isDead)
+	local xPlayer = ESX.GetPlayerFromId(source)
+
+	if type(isDead) == 'boolean' then
+		MySQL.update('UPDATE users SET is_dead = ? WHERE identifier = ?', { isDead, xPlayer.identifier })
+		isDeadState(source, isDead)
+
+		if not isDead then
+			local Ambulance = ESX.GetExtendedPlayers("job", "ambulance")
+			for _, xPlayer in pairs(Ambulance) do
+				xPlayer.triggerEvent('esx_ambulancejob:PlayerNotDead', source)
+			end
+		end
+	end
+
+end)

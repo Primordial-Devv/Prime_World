@@ -419,3 +419,13 @@ ESX.RegisterCommand('players', "admin", function()
         print(('^1[^2ID: ^5%s^0 | ^2Name : ^5%s^0 | ^2Group : ^5%s^0 | ^2Identifier : ^5%s^1]^0\n'):format(xPlayer.source, xPlayer.getName(), xPlayer.getGroup(), xPlayer.identifier))     
     end
 end, true)
+
+ESX.RegisterCommand('revive', 'admin', function(xPlayer, args, showError)
+	args.playerId.triggerEvent('esx_ambulancejob:revive')
+end, true, { help = TranslateCap('revive_help'), validate = true, arguments = {
+	{ name = 'playerId', help = 'The player id', type = 'player' }
+} })
+
+ESX.RegisterCommand('reviveall', "admin", function(xPlayer, args, showError)
+	TriggerClientEvent('esx_ambulancejob:revive', -1)
+end, false)
